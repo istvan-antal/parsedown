@@ -36,8 +36,14 @@ class Parsedown
 	#
 	# Setters
 	#
-
-	private $break_marker = "  \n";
+        
+        private $code_block_adapter = null;
+         
+        public function setCodeBlockAdapter($fn) {
+            $this->code_block_adapter = $fn;
+        }
+        
+        private $break_marker = "  \n";
 
 	function set_breaks_enabled($breaks_enabled)
 	{
@@ -585,7 +591,11 @@ class Parsedown
 
 				case 'code_block':
 				case 'fenced_code_block':
-
+                                    $fn = $this->code_block_adapter;
+                                        if ($fn) {
+                                            $markup .= $fn($element);
+                                            break;
+                                        }
 					$text = htmlspecialchars($element['text'], ENT_NOQUOTES, 'UTF-8');
 
 					strpos($text, "\x1A\\") !== FALSE and $text = strtr($text, $this->escape_sequence_map);
